@@ -194,6 +194,7 @@ let
   shell = pkgs.mkShell {
     name = "nix-and-python";
     buildInputs = [
+      pkgs.niv
       pkgs.poetry
       appEnv
     ];
@@ -305,6 +306,8 @@ note: currently hard linking saves 0.00 MiB
 
 ```
 
+Ref: https://nixos.org/manual/nix/unstable/command-ref/new-cli/nix3-store.html
+
 ### Nuking poetry env
 
 Poetry uses virtualenv, and sometimes it's a bit too sticky, so you might want to remove
@@ -354,3 +357,5 @@ Python 3.10.9 (main, Feb  7 2023, 22:22:12) [Clang 11.1.0 ] on darwin
 Type "help", "copyright", "credits" or "license" for more information.
 
 ```
+
+Ref: https://python-poetry.org/docs/managing-environments/
