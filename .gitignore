@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# nix, direnv
+.direnv/
+result/
+result
+.envrc
