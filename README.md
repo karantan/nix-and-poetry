@@ -55,12 +55,8 @@ in
 ```
 
 Here we tell nix where is the source for nixpkgs and how to build poetry2nix package.
-
-Add this to shell.nix:
-
-```
-(import ./default.nix).shell
-```
+We also export `shell` attribute and because it is the only one exported the `nix-shell`
+will pick it up (otherwise you will need to specify it e.g. `nix-shell --attr shell`).
 
 At this point we can enter `nix-shell` and we'll have access to `poetry`.
 
@@ -205,6 +201,19 @@ in
 {
   inherit app shell;
 }
+```
+
+Because we are now exporting `app` and `shell` the `nix-shell` won't work anymore.
+We can fix this by specifiying which attr to build by providing the `--attr` flag. E.g.
+
+```
+nix-shell --attr shell
+```
+
+The other option is to make `shell.nix` file with the following content:
+
+```
+(import ./default.nix).shell
 ```
 
 ## Build
