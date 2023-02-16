@@ -13,6 +13,7 @@ let
   shell = pkgs.mkShell {
     name = "nix-and-python";
     buildInputs = [
+      pkgs.niv
       pkgs.poetry
       app
     ];

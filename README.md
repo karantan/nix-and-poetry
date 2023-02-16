@@ -1,18 +1,16 @@
 # nix-and-poetry ![gha build](https://github.com/karantan/nix-and-poetry/workflows/nixbuild/badge.svg)
 Sandbox for playing with nix, niv, nix2poetry and python app.
 
+
 ## Niv
 Use [niv](https://github.com/nmattia/niv) for easy dependency management for Nix projects.
 
 To get started read [README.md](https://github.com/nmattia/niv#install)
 
-Once niv is installed and we've know how to use it (i.e. we've read the docs) we can now
-bootstraps a Nix project (I prefer to init it with no packages):
-
 ```
+nix-shell -p niv
 niv init --no-nixpkgs
 ```
-
 
 Next, find the branch name in [NixOS/nixpkgs](https://github.com/NixOS/nixpkgs) (search for
 it in the branch dropdown element).
@@ -24,9 +22,9 @@ niv add NixOS/nixpkgs --name nixpkgs --version 22.11 --branch release-22.11
 ```
 
 I strongly recommend to always add `--version <version>` tag when adding packages. This
-will make projects much easiler to maintain.
+will make projects much easier to maintain.
 
-Lastly we add poetry2nix:
+Lastly, we add poetry2nix:
 
 ```
 niv add nix-community/poetry2nix --branch master --version 1.39.1 --name poetry2nix
@@ -45,6 +43,7 @@ let
   shell = pkgs.mkShell {
     name = "nix-and-python";
     buildInputs = [
+      pkgs.niv
       pkgs.poetry
     ];
   };
@@ -55,10 +54,12 @@ in
 ```
 
 Here we tell nix where is the source for nixpkgs and how to build poetry2nix package.
+We add `pkgs.niv` so that we'll be able to update nix `source.json` in the future.
+
 We also export `shell` attribute and because it is the only one exported the `nix-shell`
 will pick it up (otherwise you will need to specify it e.g. `nix-shell --attr shell`).
 
-At this point we can enter `nix-shell` and we'll have access to `poetry`.
+At this point, we can enter `nix-shell` and we'll have access to `poetry`.
 
 ```
 [nix-shell:~/nix-and-poetry]$ poetry --version
@@ -86,7 +87,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 ```
 
-At this point we can enter python shell by running:
+Enter python shell by running:
 
 ```
 [nix-shell:~/nix-and-poetry]$ poetry run python
@@ -95,7 +96,7 @@ Python 3.10.9 (main, Feb  7 2023, 22:22:12) [Clang 11.1.0 ] on darwin
 Type "help", "copyright", "credits" or "license" for more information.
 ```
 
-Next we can add a few dependencies and our code:
+Next, we can add a few dependencies and our code:
 
 ```
 poetry add requests
@@ -115,7 +116,7 @@ Hello World!
 8.1.3
 ```
 
-We also want to be able to run our script as an app so we need to add the following
+We also want to be able to run our script as an app, so we need to add the following
 to the pyproject.toml:
 
 ```
@@ -142,11 +143,11 @@ echo "use nix" > .envrc
 direnv allow
 ```
 
-Now everytime you `cd` into this directory your nix env will automatically load.
+Now every time you `cd` into this directory, your nix env will automatically load.
 
 ## Poetry2Nix
 
-So far we have't really used poetry2nix library. Technically we have't even installed it
+So far, we haven't really used poetry2nix library. Technically we haven't even installed it
 into our env.
 
 We need it to package our python script into an app (so that we'll be able to execute it
@@ -173,9 +174,9 @@ appEnv = poetry2nix.mkPoetryEnv (commonPoetryArgs // { });
 ```
 
 Add `appEnv` to `pkgs.mkShell` build inputs, and export `app` (`inherit app shell;`).
-You need to export `app` so that the app can be build (see the build section).
+You need to export `app` so the app can be built (see the build section).
 
-The whole `default.nix` file shold look like this:
+The whole `default.nix` file should look like this:
 
 ```
 let
@@ -204,7 +205,7 @@ in
 ```
 
 Because we are now exporting `app` and `shell` the `nix-shell` won't work anymore.
-We can fix this by specifiying which attr to build by providing the `--attr` flag. E.g.
+We can fix this by specifying which attr to build by providing the `--attr` flag. E.g.
 
 ```
 nix-shell --attr shell
@@ -218,10 +219,10 @@ The other option is to make `shell.nix` file with the following content:
 
 ## Build
 
-Now that everything is wired up we can easily build the app. By default `nix-build` will
+Now that everything is wired up, we can build the app. By default `nix-build` will
 try to build all attributes. In our case we have `app` and `shell`.
 
-Because `shell` is poetry environment which is meant to be editable, it doesn't make
+Because `shell` is poetry environment that is meant to be editable, it doesn't make
 sense to build it, so let's only build the `app`:
 
 ```bash
@@ -237,7 +238,7 @@ Hello World!
 ## Troubleshooting
 
 If you install a broken python package (e.g. `humanize==4.6.0`) you won't be able to enter
-nix-shell (or direnv reload will break). For example you might get the following error
+nix-shell (or direnv reload will break). For example, you might get the following error
 if you install humanize v4.6.0 (with poetry) and then run `direnv reload` (or re-enter
 `nix-shell`):
 
@@ -261,6 +262,19 @@ To fix this you will need to:
 2. remove/update the broken package (this will probably be the hard part because it might be hard to find it)
 3. run `poetry lock && poetry install` to lock the `poetry.lock` file and install the new package(s)
 4. add mkPoetryEnv app back to `pkgs.mkShell.buildInputs` and enter `nix-shell` (or run `direnv reload`)
+
+Another option would be to manage `poetry.lock` and `pyproject.toml` with an outside `poetry`
+package. E.g.
+
+```bash
+cd ..
+nix-shell -p poetry
+cd -
+# make changes to python packages ...
+poetry lock
+poetry install
+# exit nix-shell
+```
 
 ### Nuking nix env
 
@@ -293,10 +307,10 @@ note: currently hard linking saves 0.00 MiB
 
 ### Nuking poetry env
 
-Poetry uses virtualenv and sometimes it's a bit too sticky so you might want to remove
+Poetry uses virtualenv, and sometimes it's a bit too sticky, so you might want to remove
 everything and start over.
 
-First list all envs and then remove it. Example:
+First, list all envs and then remove it. Example:
 
 ```
 [nix-shell:~/github/nix-and-poetry]$ poetry env info
