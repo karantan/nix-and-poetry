@@ -236,6 +236,28 @@ Hello World!
 0.10.2
 8.1.3
 ```
+
+## Importing the package
+
+Usually you'll want to import the package in your NixOS configuration so that you can
+use it.
+
+```
+...
+  packageRepo = fetchGit {
+    url = "git@github.com:teamniteo/ebn-nixos";
+    ref = "master";
+    rev = "...";
+  };
+  myPackage = (import packageRepo).app
+
+  environment.systemPackages = [
+    myPackage
+    ...
+  ];
+...
+```
+
 ## Troubleshooting
 
 If you install a broken python package (e.g. `humanize==4.6.0`) you won't be able to enter
