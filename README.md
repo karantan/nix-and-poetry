@@ -1,6 +1,93 @@
 # nix-and-poetry ![gha build](https://github.com/karantan/nix-and-poetry/workflows/nixbuild/badge.svg)
 Sandbox for playing with nix, niv, nix2poetry and python app.
 
+## Theory (expressions, derivations and attribute sets)
+
+First let's start with some theory. You will need this knowledge to understand things
+like why we have `(import ./default.nix).shell` in the `shell.nix` and not
+`(import ./default.nix {}).shell` or `import ./default.nix {}`.
+
+Also sometimes you will see nix package that starts with `{}:` and sometimes it starts
+with `let`. E.g.
+
+```
+let
+  sources = import ./nix/sources.nix;
+  pkgs = import sources.nixpkgs { };
+  shell = pkgs.mkShell {
+    ...
+  };
+in
+{
+  inherit shell;
+}
+```
+
+Is basically the same as
+
+```
+{ ... }:
+let
+  sources = import ./nix/sources.nix;
+  pkgs = import sources.nixpkgs { };
+  shell = pkgs.mkShell {
+    ...
+  };
+in
+{
+  inherit shell;
+}
+```
+
+except this one is a function so you need to call it first in order to access the
+attribute set. The first one you don't.
+
+A piece of Nix language code is a **Nix expression**.
+
+Nix expressions are used to describe packages and how to build them. This typically mean
+the definition of a function with multiple inputs which as a result in a derivation.
+
+However a Nix expression can be everything, from a simple string, to a function to
+a set of expressions.
+
+**Derivations** are the building blocks of a Nix system, from a file system view point.
+They define a build, which takes some inputs and produces an output. The inputs are
+almost always in a `src` attribute, and outputs are almost always some
+`/nix/store/some-hash-pkg-name` path. That's why we can do [string interpolations](https://nix.dev/tutorials/nix-language#string-interpolation)
+on them (e.g. ${pkgs.nix} => "/nix/store/...-nix-2.11.0").
+
+Whenever you see `mkDerivation`, it denotes something that Nix will eventually build.
+
+Example
+
+```
+{ stdenv, fetchgit }:
+
+stdenv.mkDerivation {
+  name = "hello";
+  src = fetchgit {
+    url = "https://...";
+    sha256 = "0000000000000000000000000000000000000000000000000000";
+  };
+}
+```
+
+The evaluation result of `mkDerivation` is an [`attribute set`](https://nix.dev/tutorials/nix-language#attrset)
+with a certain structure and a special property: It can be used in string interpolation,
+and in that case evaluates to the Nix store path of its build result.
+
+In this project we won't use `mkDerivation` but we will use:
+- `mkShell` (specialized `stdenv.mkDerivation`),
+- `mkPoetryApplication` ("mkDerivation" for python applications) and
+- `mkPoetryEnv` ("mkDerivation" for seting up python environment).
+
+Other languages might have different conviniance functions to build derivations like
+[`buildGoModule`](https://ryantm.github.io/nixpkgs/languages-frameworks/go/#ex-buildGoModule)
+
+Ref:
+- [nix.dev](https://nix.dev/tutorials/nix-language#derivations)
+- [nixos wiki](https://nixos.wiki/wiki/Overview_of_the_Nix_Language#Expressions)
+
 
 ## Niv
 Use [niv](https://github.com/nmattia/niv) for easy dependency management for Nix projects.
