@@ -88,6 +88,14 @@ Ref:
 - [nix.dev](https://nix.dev/tutorials/nix-language#derivations)
 - [nixos wiki](https://nixos.wiki/wiki/Overview_of_the_Nix_Language#Expressions)
 
+### Nix Anti-patterns
+
+A cheatsheat of [nix anti-patterns](https://nix.dev/anti-patterns/):
+
+1. Don't use `rec { ... }`. Use `let ... in`
+2. Don't use `with attrset; ...`. Use `let ... in` combined with `inherit`
+3. Don't use `./.` for referencing top-level directory. Use `builtins.path`
+
 
 ## Niv
 Use [niv](https://github.com/nmattia/niv) for easy dependency management for Nix projects.
