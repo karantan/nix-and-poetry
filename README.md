@@ -394,6 +394,20 @@ poetry install
 # exit nix-shell
 ```
 
+### No module named 'PACKAGENAME'
+
+At times, you might encounter an error `ModuleNotFoundError: No module named 'setuptools'` when attempting to access nix-shell. This issue arises because poetry2nix requires an additional package for building the Python package. You can provide the needed package through buildInputs in default.nix, as shown in the example below:
+
+```
+humanize = super.humanize.overridePythonAttrs (old: {
+  buildInputs = old.buildInputs or [ ] ++ [ super.hatchling super.hatch-vcs ];
+});
+```
+
+For more information on why this happens, visit: https://github.com/nix-community/poetry2nix/blob/master/docs/edgecases.md
+
+If you discover these packages and fix them in your project, please consider creating a pull request to update this file: https://github.com/nix-community/poetry2nix/blob/master/overrides/build-systems.json. Doing so will save other developers from having to address the same issue.
+
 ### Nuking nix env
 
 Sometimes you'll need to delete the whole nix store and start over (i.e. nuking the dev env).
