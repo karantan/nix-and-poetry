@@ -1,16 +1,16 @@
 {
     "nixpkgs": {
-        "branch": "release-22.11",
+        "branch": "release-23.05",
         "description": "Nix Packages collection",
         "homepage": "",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "9648b525c34879e70d664bb1bd52704f324f50a0",
-        "sha256": "0jnfdkj74qqcydl4mdvjzg9axi101lcm4d0a9y4i56wpk4nfdsmy",
+        "rev": "b0c9d793fcab2f749ab3d543ba42facf90bb1bd9",
+        "sha256": "0n00rsh3lagsbqypsnjram29242kvlv9j0zx305zlm3nc7n1jxbx",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/9648b525c34879e70d664bb1bd52704f324f50a0.tar.gz",
+        "url": "https://github.com/NixOS/nixpkgs/archive/b0c9d793fcab2f749ab3d543ba42facf90bb1bd9.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
-        "version": "22.11"
+        "version": "23.05"
     },
     "poetry2nix": {
         "branch": "master",
@@ -18,11 +18,11 @@
         "homepage": "",
         "owner": "nix-community",
         "repo": "poetry2nix",
-        "rev": "860530598f2ab9a9a0e89dc79851d14b0aed3bf7",
-        "sha256": "0p8pzg4baini9n12kb1kq6ssqminh7nbba8vcs1y4ncndj8xzlni",
+        "rev": "fcdb6dafc7af8cde37454fa6fc84e7e0391e2c06",
+        "sha256": "1f4iiylf8gvki55l2q3i88i2gj6m4jqbwaz4skxh74piz8hswp16",
         "type": "tarball",
-        "url": "https://github.com/nix-community/poetry2nix/archive/860530598f2ab9a9a0e89dc79851d14b0aed3bf7.tar.gz",
+        "url": "https://github.com/nix-community/poetry2nix/archive/fcdb6dafc7af8cde37454fa6fc84e7e0391e2c06.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
-        "version": "1.39.1"
+        "version": "2023.08.16.42719"
     }
 }

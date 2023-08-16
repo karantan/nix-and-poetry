@@ -110,10 +110,10 @@ niv init --no-nixpkgs
 Next, find the branch name in [NixOS/nixpkgs](https://github.com/NixOS/nixpkgs) (search for
 it in the branch dropdown element).
 
-Example for nixpkgs 22.11:
+Example for nixpkgs 23.05:
 
 ```
-niv add NixOS/nixpkgs --name nixpkgs --version 22.11 --branch release-22.11
+niv add NixOS/nixpkgs --name nixpkgs --version 23.05 --branch release-23.05
 ```
 
 I strongly recommend to always add `--version <version>` tag when adding packages. This
@@ -122,7 +122,7 @@ will make projects much easier to maintain.
 Lastly, we add poetry2nix:
 
 ```
-niv add nix-community/poetry2nix --branch master --version 1.39.1 --name poetry2nix
+niv add nix-community/poetry2nix --branch master --version 2023.08.16.42719 --name poetry2nix
 ```
 
 This concludes our nix dependencies and nix.
@@ -257,10 +257,7 @@ development). We will use both.
 Add the following to the `default.nix`:
 
 ```
-poetry2nix = import sources.poetry2nix {
-  inherit pkgs;
-  inherit (pkgs) poetry;
-};
+poetry2nix = import sources.poetry2nix { };
 commonPoetryArgs = {
   projectDir = ./.;
 };
@@ -277,10 +274,7 @@ The whole `default.nix` file should look like this:
 let
   sources = import ./nix/sources.nix;
   pkgs = import sources.nixpkgs { };
-  poetry2nix = import sources.poetry2nix {
-    inherit pkgs;
-    inherit (pkgs) poetry;
-  };
+  poetry2nix = import sources.poetry2nix { };
   commonPoetryArgs = {
     projectDir = ./.;
   };
