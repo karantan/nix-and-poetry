@@ -61,13 +61,13 @@ Whenever you see `mkDerivation`, it denotes something that Nix will eventually b
 Example
 
 ```
-{ stdenv, fetchgit }:
+{ lib, stdenv, fetchgit }:
 
 stdenv.mkDerivation {
   name = "hello";
   src = fetchgit {
     url = "https://...";
-    sha256 = "0000000000000000000000000000000000000000000000000000";
+    sha256 = lib.fakeHash;
   };
 }
 ```
@@ -110,10 +110,10 @@ niv init --no-nixpkgs
 Next, find the branch name in [NixOS/nixpkgs](https://github.com/NixOS/nixpkgs) (search for
 it in the branch dropdown element).
 
-Example for nixpkgs 23.05:
+Example for nixpkgs 23.11:
 
 ```
-niv add NixOS/nixpkgs --name nixpkgs --version 23.05 --branch release-23.05
+niv add NixOS/nixpkgs --name nixpkgs --version 23.11 --branch release-23.11 --rev 057f9aecfb71c4437d2b27d3323df7f93c010b7e
 ```
 
 I strongly recommend to always add `--version <version>` tag when adding packages. This
@@ -122,7 +122,7 @@ will make projects much easier to maintain.
 Lastly, we add poetry2nix:
 
 ```
-niv add nix-community/poetry2nix --branch master --version 2023.08.16.42719 --name poetry2nix
+niv add nix-community/poetry2nix --branch master --rev 92363e49d033af04ba1531309f62c049e1cdf044 --version 2023.12.1215473 --name poetry2nix
 ```
 
 This concludes our nix dependencies and nix.
@@ -138,7 +138,6 @@ let
   shell = pkgs.mkShell {
     name = "nix-and-python";
     buildInputs = [
-      pkgs.niv
       pkgs.poetry
     ];
   };
@@ -158,7 +157,7 @@ At this point, we can enter `nix-shell` and we'll have access to `poetry`.
 
 ```
 [nix-shell:~/nix-and-poetry]$ poetry --version
-Poetry (version 1.3.0)
+Poetry (version 1.7.1)
 ```
 
 Bootstraps a poetry project with `poetry init`. Poetry will generate `pyproject.toml`
