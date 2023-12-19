@@ -256,12 +256,12 @@ development). We will use both.
 Add the following to the `default.nix`:
 
 ```
-poetry2nix = import sources.poetry2nix { };
+poetry2nix = import sources.poetry2nix { pkgs = pkgs; };
 commonPoetryArgs = {
   projectDir = ./.;
 };
-app = poetry2nix.mkPoetryApplication (commonPoetryArgs // { });
-appEnv = poetry2nix.mkPoetryEnv (commonPoetryArgs // { });
+app = pkgs.poetry2nix.mkPoetryApplication (commonPoetryArgs // { });
+appEnv = pkgs.poetry2nix.mkPoetryEnv (commonPoetryArgs // { });
 ```
 
 Add `appEnv` to `pkgs.mkShell` build inputs, and export `app` (`inherit app shell;`).
@@ -273,16 +273,15 @@ The whole `default.nix` file should look like this:
 let
   sources = import ./nix/sources.nix;
   pkgs = import sources.nixpkgs { };
-  poetry2nix = import sources.poetry2nix { };
+  poetry2nix = import sources.poetry2nix { pkgs = pkgs; };
   commonPoetryArgs = {
     projectDir = ./.;
   };
-  app = poetry2nix.mkPoetryApplication (commonPoetryArgs // { });
-  appEnv = poetry2nix.mkPoetryEnv (commonPoetryArgs // { });
+  app = pkgs.poetry2nix.mkPoetryApplication (commonPoetryArgs // { });
+  appEnv = pkgs.poetry2nix.mkPoetryEnv (commonPoetryArgs // { });
   shell = pkgs.mkShell {
     name = "nix-and-python";
     buildInputs = [
-      pkgs.niv
       pkgs.poetry
       appEnv
     ];
