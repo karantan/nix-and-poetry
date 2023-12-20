@@ -110,6 +110,9 @@ niv init --no-nixpkgs
 Next, find the branch name in [NixOS/nixpkgs](https://github.com/NixOS/nixpkgs) (search for
 it in the branch dropdown element).
 
+It's a good idea to also look at [Nix Channel Status](https://status.nixos.org/) to
+make sure you add the channel you want.
+
 Example for nixpkgs 23.11:
 
 ```
