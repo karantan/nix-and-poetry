@@ -211,7 +211,7 @@ poetry add click
 Now we can run our simple script.
 
 ```
-[nix-shell:~/nix-and-poetry]$ poetry run python src/main.py 
+[nix-shell:~/nix-and-poetry]$ poetry run python src/main.py
 Hello World!
 2.28.2
 4.4.0
@@ -409,6 +409,90 @@ For more information on why this happens, visit: https://github.com/nix-communit
 
 If you discover these packages and fix them in your project, please consider creating a pull request to update this file: https://github.com/nix-community/poetry2nix/blob/master/overrides/build-systems.json. Doing so will save other developers from having to address the same issue.
 
+### Problems unpacking wheels
+
+I've encountered a problem with `bcrypt` with `preferWheels = true;` option in `poetry2nix.mkPoetryEnv`
+configuration. I have macos (M2) and bcrypt had only wheels compiled with cpython 37 but
+I needed them with cphython 310.
+
+This was the package content in poetry.lock:
+
+```
+[[package]]
+name = "bcrypt"
+version = "4.1.1"
+description = "Modern password hashing for your software and your servers"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "bcrypt-4.1.1-cp37-abi3-macosx_10_12_universal2.whl", hash = "sha256:196008d91201bbb1aa4e666fee5e610face25d532e433a560cabb33bfdff958b"},
+    {file = "bcrypt-4.1.1-cp37-abi3-macosx_13_0_universal2.whl", hash = "sha256:2e197534c884336f9020c1f3a8efbaab0aa96fc798068cb2da9c671818b7fbb0"},
+    {file = "bcrypt-4.1.1-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:d573885b637815a7f3a3cd5f87724d7d0822da64b0ab0aa7f7c78bae534e86dc"},
+    {file = "bcrypt-4.1.1-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bab33473f973e8058d1b2df8d6e095d237c49fbf7a02b527541a86a5d1dc4444"},
+    {file = "bcrypt-4.1.1-cp37-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:fb931cd004a7ad36a89789caf18a54c20287ec1cd62161265344b9c4554fdb2e"},
+    {file = "bcrypt-4.1.1-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:12f40f78dcba4aa7d1354d35acf45fae9488862a4fb695c7eeda5ace6aae273f"},
+    {file = "bcrypt-4.1.1-cp37-abi3-musllinux_1_1_aarch64.whl", hash = "sha256:2ade10e8613a3b8446214846d3ddbd56cfe9205a7d64742f0b75458c868f7492"},
+    {file = "bcrypt-4.1.1-cp37-abi3-musllinux_1_1_x86_64.whl", hash = "sha256:f33b385c3e80b5a26b3a5e148e6165f873c1c202423570fdf45fe34e00e5f3e5"},
+    {file = "bcrypt-4.1.1-cp37-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:755b9d27abcab678e0b8fb4d0abdebeea1f68dd1183b3f518bad8d31fa77d8be"},
+    {file = "bcrypt-4.1.1-cp37-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:a7a7b8a87e51e5e8ca85b9fdaf3a5dc7aaf123365a09be7a27883d54b9a0c403"},
+    {file = "bcrypt-4.1.1-cp37-abi3-win32.whl", hash = "sha256:3d6c4e0d6963c52f8142cdea428e875042e7ce8c84812d8e5507bd1e42534e07"},
+    {file = "bcrypt-4.1.1-cp37-abi3-win_amd64.whl", hash = "sha256:14d41933510717f98aac63378b7956bbe548986e435df173c841d7f2bd0b2de7"},
+    {file = "bcrypt-4.1.1-pp310-pypy310_pp73-manylinux_2_28_aarch64.whl", hash = "sha256:24c2ebd287b5b11016f31d506ca1052d068c3f9dc817160628504690376ff050"},
+    {file = "bcrypt-4.1.1-pp310-pypy310_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:476aa8e8aca554260159d4c7a97d6be529c8e177dbc1d443cb6b471e24e82c74"},
+    {file = "bcrypt-4.1.1-pp39-pypy39_pp73-manylinux_2_28_aarch64.whl", hash = "sha256:12611c4b0a8b1c461646228344784a1089bc0c49975680a2f54f516e71e9b79e"},
+    {file = "bcrypt-4.1.1-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:c6450538a0fc32fb7ce4c6d511448c54c4ff7640b2ed81badf9898dcb9e5b737"},
+    {file = "bcrypt-4.1.1.tar.gz", hash = "sha256:df37f5418d4f1cdcff845f60e747a015389fa4e63703c918330865e06ad80007"},
+]
+
+```
+
+I removed all wheels except the one built with `pp310-pypy310` and kept the source
+(`bcrypt-4.1.1.tar.gz`) so that we can build locally from source.
+
+This was what I kept:
+
+
+```
+[[package]]
+name = "bcrypt"
+version = "4.1.1"
+description = "Modern password hashing for your software and your servers"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "bcrypt-4.1.1-pp310-pypy310_pp73-manylinux_2_28_aarch64.whl", hash = "sha256:24c2ebd287b5b11016f31d506ca1052d068c3f9dc817160628504690376ff050"},
+    {file = "bcrypt-4.1.1-pp310-pypy310_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:476aa8e8aca554260159d4c7a97d6be529c8e177dbc1d443cb6b471e24e82c74"},
+    {file = "bcrypt-4.1.1.tar.gz", hash = "sha256:df37f5418d4f1cdcff845f60e747a015389fa4e63703c918330865e06ad80007"},
+]
+```
+
+Nix was then forced to build bcrypt from the source:
+
+```
+$ nix-shell --attr shell
+...
+
+building '/nix/store/jm383pp89mds8nvibgcbcpkycwqvmrb0-bcrypt-4.1.1-vendor.tar.gz.drv'...
+Running phase: unpackPhase
+unpacking source archive /nix/store/xwd23rdn9sc2lf441xdzam7jfjqqin1g-bcrypt-4.1.1.tar.gz
+source root is bcrypt-4.1.1/src/_bcrypt
+setting SOURCE_DATE_EPOCH to timestamp 1701185840 of file bcrypt-4.1.1/src/_bcrypt/src/lib.rs
+Running phase: patchPhase
+Running phase: updateAutotoolsGnuConfigScriptsPhase
+Running phase: configurePhase
+no configure script, doing nothing
+Running phase: buildPhase
+    Updating crates.io index
+ Downloading crates ...
+  Downloaded windows-targets v0.48.5
+...
+Running phase: installPhase
+Running phase: fixupPhase
+checking for references to /private/tmp/nix-build-bcrypt-4.1.1-vendor.tar.gz.drv-0/ in /nix/store/w2x0gvq916zqwc32m9mbrg2mqj7crn65-bcrypt-4.1.1-vendor.tar.gz...
+patching script interpreter paths in /nix/store/w2x0gvq916zqwc32m9mbrg2mqj7crn65-bcrypt-4.1.1-vendor.tar.gz
+...
+
+```
 ### Nuking nix env
 
 Sometimes you'll need to delete the whole nix store and start over (i.e. nuking the dev env).
