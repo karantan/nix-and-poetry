@@ -3,23 +3,25 @@ let
   pkgs = import sources.nixpkgs { };
   poetry2nix = import sources.poetry2nix { pkgs = pkgs; };
   # Fixing broken python packages
-  poetryOverrides = self: super: {
-    # Since poetry2nix prefers to build from source it requires the build tool.
-    # That's why we need to explicitly add things like setuptools to the buildInputs.
-    # See https://github.com/nix-community/poetry2nix/blob/master/docs/edgecases.md
-    hammock = super.hammock.overridePythonAttrs
-      (old: { buildInputs = old.buildInputs or [ ] ++ [ super.setuptools ]; });
-    humanize = super.humanize.overridePythonAttrs (old: {
-      buildInputs = old.buildInputs or [ ]
-        ++ [ super.hatchling super.hatch-vcs ];
-    });
+  pypkgs-build-requirements = {
+    hammock = [ "setuptools" ];
+    humanize = [ "hatchling" "hatch-vcs" ];
+    ruamel-yaml-clib = [ "flit" ];
   };
+  p2n-overrides = poetry2nix.defaultPoetryOverrides.extend (self: super:
+    builtins.mapAttrs (package: build-requirements:
+      (builtins.getAttr package super).overridePythonAttrs (old: {
+        buildInputs = (old.buildInputs or [ ]) ++ (builtins.map (pkg: if builtins.isString pkg then builtins.getAttr pkg super else pkg) build-requirements);
+      })
+    ) pypkgs-build-requirements
+  );
   commonPoetryArgs = {
     projectDir = ./.;
-    overrides = [ pkgs.poetry2nix.defaultPoetryOverrides poetryOverrides ];
+    preferWheels = true;
+    overrides = p2n-overrides;
   };
-  app = pkgs.poetry2nix.mkPoetryApplication (commonPoetryArgs // { });
-  appEnv = pkgs.poetry2nix.mkPoetryEnv (commonPoetryArgs // { });
+  app = poetry2nix.mkPoetryApplication (commonPoetryArgs // { });
+  appEnv = poetry2nix.mkPoetryEnv (commonPoetryArgs // { });
   shell = pkgs.mkShell {
     name = "nix-and-python";
     buildInputs = [

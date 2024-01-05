@@ -119,13 +119,19 @@ Example for nixpkgs 23.11:
 niv add NixOS/nixpkgs --name nixpkgs --version 23.11 --branch release-23.11 --rev 057f9aecfb71c4437d2b27d3323df7f93c010b7e
 ```
 
+or nixos-unstable-small:
+
+```
+niv add NixOS/nixpkgs --name nixpkgs --version nixos-unstable-small --branch master --rev d307dfa20b1873b46615253b44b837d54143a82d
+```
+
 I strongly recommend to always add `--version <version>` tag when adding packages. This
 will make projects much easier to maintain.
 
 Lastly, we add poetry2nix:
 
 ```
-niv add nix-community/poetry2nix --branch master --rev 92363e49d033af04ba1531309f62c049e1cdf044 --version 2023.12.1215473 --name poetry2nix
+niv add nix-community/poetry2nix --branch master --rev 528d500ea826383cc126a9be1e633fc92b19ce5d --version 2023.12.2614813 --name poetry2nix
 ```
 
 This concludes our nix dependencies and nix.
