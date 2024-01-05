@@ -1,0 +1,20 @@
+minimum_pre_commit_version: 1.17.0
+default_stages: [commit, push, manual]
+repos:
+
+  - repo: local
+    hooks:
+
+    - id: trailing-whitespace
+      name: Check Trailing Whitespace (Auto-Fix)
+      description: Ensures file lines with trailing whitespace are trimmed.
+      entry: trailing-whitespace-fixer
+      language: system
+      types: [file, text]
+
+    - id: end-of-file-fixer
+      name: Check End Of Files (Auto-Fix)
+      description: Ensures that a file is either empty, or ends with one newline.
+      entry: end-of-file-fixer
+      language: system
+      types: [file, text]

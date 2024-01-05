@@ -28,6 +28,13 @@ let
       pkgs.poetry
       app
     ];
+    # install pre-commit hook
+    shellHook = ''
+      if [[ -d .git ]]; then
+        pre-commit install -f --hook-type pre-commit
+        pre-commit install -f --hook-type pre-push
+      fi
+    '';
   };
 in
 {
